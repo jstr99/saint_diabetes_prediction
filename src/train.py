@@ -43,7 +43,7 @@ def setup_experiment(model_dict: dict,
 
     if experiment == 'supervised' and dataloaders['test_loader'] is not None:
         trainer.test(ckpt_path='best',
-                    test_dataloaders=dataloaders['test_loader'],
+                    dataloaders=dataloaders['test_loader'],
                     )
 
     best_model_ckpt = checkpoint_callback.best_model_path
