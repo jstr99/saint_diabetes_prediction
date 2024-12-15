@@ -40,7 +40,7 @@ class Metric:
         return method()
 
     def auroc(self):
-        return AUROC(num_classes=self.num_classes,)
+        return AUROC(num_classes=self.num_classes, task='binary')
 
     def acc(self):
         return  Accuracy(num_classes=self.num_classes)
