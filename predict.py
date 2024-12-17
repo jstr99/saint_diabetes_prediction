@@ -10,6 +10,8 @@ import pandas as pd
 from models.model_generator import get_model
 from src.dataset import DatasetTabular
 from src.trainer import SaintSupLightningModule
+from sklearn.metrics import roc_auc_score, roc_curve
+import matplotlib.pyplot as plt
 
 
 @hydra.main(config_path="configs", config_name="config")    
@@ -52,16 +54,17 @@ def main(args: DictConfig) -> None:
         test_df = test_df[[args.experiment.id_col]]
         test_df[args.experiment.target_col] = -1
         
+        prob = []
         preds = []
         
         with torch.no_grad():
             for x, _ in test_loader:
                 output = model(x)
                 if args.experiment.num_output in [1, None]:
-                    pred = torch.sigmoid(output)
-                    pred = (pred > 0.5).long()
+                    prob = torch.sigmoid(output)
+                    pred = (prob > 0.5).long()
                 else:
-                    pred = nn.functional.softmax(output, dim=1)
+                    prob = nn.functional.softmax(output, dim=1)
                     pred = torch.argmax(pred, dim=1)
                 preds.append(pred)
             preds = torch.cat(preds, dim=0).squeeze()
@@ -69,6 +72,7 @@ def main(args: DictConfig) -> None:
         
         assert len(preds) == len(test_df)
         test_df[args.experiment.target_col] = preds
+        test_df['prob'] = prob
         
         test_df.to_csv(args.experiment.pred_sav_path, index=False)
     
