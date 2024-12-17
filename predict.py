@@ -75,7 +75,7 @@ def main(args: DictConfig) -> None:
         
         assert len(preds) == len(test_df)
         test_df[args.experiment.target_col] = preds
-        test_df['probability'] = prob
+        test_df['probability'] = probs
         
         test_df.to_csv(args.experiment.pred_sav_path, index=False)
     
