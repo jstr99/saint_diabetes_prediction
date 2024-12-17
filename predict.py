@@ -54,7 +54,7 @@ def main(args: DictConfig) -> None:
         test_df = test_df[[args.experiment.id_col]]
         test_df[args.experiment.target_col] = -1
         
-        prob = []
+        probs = []
         preds = []
         
         with torch.no_grad():
@@ -67,12 +67,15 @@ def main(args: DictConfig) -> None:
                     prob = nn.functional.softmax(output, dim=1)
                     pred = torch.argmax(pred, dim=1)
                 preds.append(pred)
+                probs.append(prob)
             preds = torch.cat(preds, dim=0).squeeze()
             preds = preds.numpy()
+            probs = torch.cat(probs, dim=0).squeeze()
+            probs = probs.numpy()
         
         assert len(preds) == len(test_df)
         test_df[args.experiment.target_col] = preds
-        test_df['prob'] = prob
+        test_df['probability'] = prob
         
         test_df.to_csv(args.experiment.pred_sav_path, index=False)
     
